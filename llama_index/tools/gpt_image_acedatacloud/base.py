@@ -10,9 +10,7 @@ from acedatacloud import AceDataCloud, AsyncAceDataCloud
 from llama_index.core.tools.tool_spec.base import BaseToolSpec
 
 API_BASE = "https://api.acedata.cloud"
-_PENDING = {"pending", "processing", "running", "queued", "submitted", "streaming", "in_progress"}
 _FAILED = {"failed", "failure", "error", "cancelled", "canceled", "rejected"}
-_DONE = {"succeeded", "success", "completed", "complete", "finished"}
 
 
 def _required(value: str, name: str) -> str:
@@ -80,16 +78,13 @@ def _result(task_id: str, raw: dict[str, Any]) -> dict[str, Any]:
         if isinstance(node, dict)
         for key in ("state", "status")
     }
-    if True and raw.get("finished_at") is None:
+    if raw.get("finished_at") is None:
         status, success = "pending", None
     elif words & _FAILED or response.get("success") is False or response.get("error"):
         status, success = "failed", False
-    elif words & _PENDING:
-        status, success = "pending", None
-    elif response.get("success") is True or words & _DONE or (True and raw.get("finished_at") is not None):
-        status, success = "succeeded", True
     else:
-        status, success = "pending", None
+        # The task store stamps finished_at only when the image operation settles.
+        status, success = "succeeded", True
     urls: list[str] = []
     if status == "succeeded":
         for item in items:

@@ -7,7 +7,7 @@
   "submit_path": "/openai/images/generations",
   "task_path": "/openai/tasks",
   "media_key": "url",
-  "terminal": "finished_at required; error/success distinguishes failure",
+  "terminal": "finished_at is authoritative; before timestamp always pending, after timestamp error/success distinguishes failure; stale processing state does not prolong a finished successful task",
   "scope": [
     "text generation",
     "edit_image",
